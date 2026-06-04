@@ -1,0 +1,7 @@
+# Local-only planning/design docs (kept out of the published package)
+/docs/
+
+# Local scratch / build artifacts
+*.tgz
+*.pl
+bash.exe.stackdump
