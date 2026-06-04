@@ -38,7 +38,7 @@ class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-dorn";
-    const MODULE_VERSION = "1.0.1";
+    const MODULE_VERSION = "1.0.2";
 
     /**
      * @var GlobalConfig Holds our module global configuration values that can be used throughout the module.

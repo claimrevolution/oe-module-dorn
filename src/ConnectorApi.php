@@ -370,9 +370,15 @@ class ConnectorApi
     {
         $token = ConnectorApi::getAccessToken();
         $content = 'content-type: application/json';
+        // Request JSON explicitly. Without an Accept header, ASP.NET returns
+        // bare-string endpoints (e.g. Customer/v1/GetAccountNumber) as
+        // text/plain — "HLTH1" instead of "\"HLTH1\"" — and json_decode() then
+        // yields null. Asking for JSON makes the server quote the string.
+        $accept = 'accept: application/json';
         $bearer = 'authorization: Bearer ' . $token;
         $headers = [
             $content,
+            $accept,
             $bearer
         ];
         return $headers;

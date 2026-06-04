@@ -43,12 +43,6 @@ $isAuth = AclMain::aclCheckCore('admin', 'users') ?? false;
             } ?>">
                 <a class="nav-link" href="lab_setup.php"><?php echo xlt("Lab Setup"); ?> </a>
             </li>
-            <li class="nav-item <?php
-            if ($tab == "connectivity") {
-                echo "active";
-            } ?>">
-                <a class="nav-link" href="connectivity.php"><?php echo xlt("Connectivity"); ?></a>
-            </li>
             <?php } ?>
             <li class="nav-item <?php
             if ($tab == "orders") {
@@ -68,6 +62,14 @@ $isAuth = AclMain::aclCheckCore('admin', 'users') ?? false;
             } ?>" >
                 <a class="nav-link" href="routes.php"><?php echo xlt("Route List"); ?></a>
             </li>
+            <?php if ($isAuth) { ?>
+            <li class="nav-item <?php
+            if ($tab == "connectivity") {
+                echo "active";
+            } ?>">
+                <a class="nav-link" href="connectivity.php"><?php echo xlt("Connectivity"); ?></a>
+            </li>
+            <?php } ?>
         </ul>
     </div>
 </nav>

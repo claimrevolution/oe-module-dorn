@@ -1,3 +1,11 @@
+# 1.0.2
+- Fix the blank **Account Number** on the Connectivity tab. The API client now
+  sends an `Accept: application/json` header, so bare-string lab-api endpoints
+  (`Customer/v1/GetAccountNumber`) return quoted JSON (`"HLTH1"`) instead of
+  `text/plain` (`HLTH1`), which `json_decode()` was turning into `null`. Other
+  endpoints already returned JSON and are unaffected.
+- Move the **Connectivity** tab to the end of the navbar (after Route List).
+
 # 1.0.1
 Adds operator-facing connectivity and contact features (mirrors ClaimRev Connect):
 - Home page now pulls Support/Sales contact info from the ClaimRev public
