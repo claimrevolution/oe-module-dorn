@@ -13,7 +13,7 @@
  namespace OpenEMR\Modules\Dorn;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
@@ -28,11 +28,20 @@ class GlobalConfig
 
     public const CONFIG_ENABLE_MENU = "oe_dorn_config_add_menu_button";
 
-    private readonly CryptoInterface $cryptoGen;
+    private readonly CryptoGen $cryptoGen;
 
     public function __construct(private array $globalsArray)
     {
-        $this->cryptoGen = ServiceContainer::getCrypto();
+        // ServiceContainer::getCrypto() returns the core crypto service. Type the
+        // property as the concrete CryptoGen (present on 7.x and 8.x) rather than
+        // CryptoInterface, which only exists on 8.x — on 7.x the empty
+        // CryptoInterfaceShim is aliased in and CryptoGen does not implement it,
+        // so an interface-typed property would TypeError on assignment.
+        $crypto = ServiceContainer::getCrypto();
+        if (!$crypto instanceof CryptoGen) {
+            throw new \RuntimeException('ServiceContainer::getCrypto() did not return a CryptoGen instance');
+        }
+        $this->cryptoGen = $crypto;
     }
 
     /**
