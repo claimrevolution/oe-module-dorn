@@ -16,18 +16,16 @@
 
     use OpenEMR\Common\Acl\AccessDeniedHelper;
     use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Session\SessionWrapperFactory;
+    use OpenEMR\Modules\Dorn\CsrfHelper;
     use OpenEMR\Core\Header;
     use OpenEMR\Modules\Dorn\ReceiveHl7Results;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    CsrfHelper::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 if (!empty($_POST)) {
-    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    CsrfHelper::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {

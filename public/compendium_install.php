@@ -14,13 +14,11 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Modules\Dorn\CsrfHelper;
 use OpenEMR\Modules\Dorn\LabCompendiumInstall;
 
 if (!empty($_GET)) {
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    CsrfHelper::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $labGuid = $_REQUEST['labGuid'];
     echo "<div style='background-color: white; color: black; padding: 5px;'>" .
         "<div>" . xlt('Compendium Install') . "</div><ul>";

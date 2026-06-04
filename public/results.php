@@ -16,8 +16,7 @@ require_once __DIR__ . "/../../../../globals.php";
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Modules\Dorn\CsrfHelper;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\Dorn\ConnectorApi;
@@ -39,7 +38,6 @@ if (!empty($_POST)) {
     }
 }
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -53,14 +51,14 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // will keep
         top.restoreSession();
         let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-        let scriptTitle = 'get_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
+        let scriptTitle = 'get_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfHelper::collectCsrfToken()); ?>;
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
 
     function ackResults(resultGuid, isRejected) {
         top.restoreSession();
         let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Results"); ?>;
-        let scriptTitle = 'ack_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&rejectResults=' + encodeURIComponent(isRejected) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
+        let scriptTitle = 'ack_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&rejectResults=' + encodeURIComponent(isRejected) + '&csrf_token_form=' + <?php echo js_url(CsrfHelper::collectCsrfToken()); ?>;
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
 
