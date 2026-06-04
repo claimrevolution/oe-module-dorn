@@ -13,9 +13,7 @@
 namespace OpenEMR\Modules\Dorn;
 
 use DateTime;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
-use OpenEMR\Modules\ClaimRevConnector\ClaimRevAuthenticationException;
+use OpenEMR\Modules\Dorn\Compat\KernelCompat;
 use OpenEMR\Modules\Dorn\models\AckViewModel;
 use OpenEMR\Modules\Dorn\models\ApiResponseViewModel;
 use OpenEMR\Modules\Dorn\models\CompendiumInstallDateViewModel;
@@ -317,7 +315,7 @@ class ConnectorApi
 
     public static function getServerInfo()
     {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
+        $bootstrap = new Bootstrap(KernelCompat::resolve()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
         return $api_server;
@@ -336,19 +334,9 @@ class ConnectorApi
     }
 
 
-    public static function canConnectToClaimRev(): bool
-    {
-        try {
-            ClaimRevApi::makeFromGlobals();
-            return true;
-        } catch (ClaimRevAuthenticationException) {
-            return false;
-        }
-    }
-
     public static function getAccessToken()
     {
-        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
+        $bootstrap = new Bootstrap(KernelCompat::resolve()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $authority = $globalsConfig->getClientAuthority();
         $clientId = $globalsConfig->getClientId();

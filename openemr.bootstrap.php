@@ -12,7 +12,8 @@
 
 namespace OpenEMR\Modules\Dorn;
 
-use OpenEMR\Core\OEGlobalsBag;
+// Load compatibility shims for OpenEMR 7.x (no-op on 8.x/flex)
+require_once __DIR__ . '/src/Compat/compat.php';
 
 /**
  * @var \OpenEMR\Core\ModulesClassLoader $classLoader
@@ -23,5 +24,5 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\Dorn\\', __DIR__ .
  * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
 
-$bootstrap = new Bootstrap($eventDispatcher, OEGlobalsBag::getInstance()->getKernel());
+$bootstrap = new Bootstrap($eventDispatcher);
 $bootstrap->subscribeToEvents();

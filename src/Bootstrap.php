@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\Dorn\Compat\KernelCompat;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
@@ -37,6 +38,7 @@ class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-dorn";
+    const MODULE_VERSION = "1.0.0";
 
     /**
      * @var GlobalConfig Holds our module global configuration values that can be used throughout the module.
@@ -64,7 +66,7 @@ class Bootstrap
         ?Kernel $kernel = null,
         ?LoggerInterface $logger = null,
     ) {
-        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
+        $kernel ??= KernelCompat::resolve();
 
         // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
         // it here.
