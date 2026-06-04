@@ -83,12 +83,27 @@ final class CsrfHelper
         string $subject = 'default',
         bool $dieOnFail = false,
     ): void {
-        if (self::usesSessionFirst()) {
-            CsrfUtils::checkCsrfInput($inputType, self::getSession(), $key, $subject, $dieOnFail);
+        // checkCsrfInput is a master/flex-only convenience method. The 8.0.x
+        // patch line and 7.0.4 only expose collectCsrfToken/verifyCsrfToken/
+        // csrfNotVerified, so calling it there is a fatal "undefined method".
+        // Prefer the native method when present, otherwise replicate it from
+        // primitives that exist on every supported line.
+        if (method_exists(CsrfUtils::class, 'checkCsrfInput')) {
+            if (self::usesSessionFirst()) {
+                CsrfUtils::checkCsrfInput($inputType, self::getSession(), $key, $subject, $dieOnFail);
+                return;
+            }
+            CsrfUtils::checkCsrfInput($inputType, $key, $subject, $dieOnFail);
             return;
         }
-        // 7.x: checkCsrfInput has no session parameter. Confirm exact arg order
-        // against the 7.0.2 image during the validation matrix and adjust if needed.
-        CsrfUtils::checkCsrfInput($inputType, $key, $subject, $dieOnFail);
+
+        $token = filter_input($inputType, $key, FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+        if (is_string($token) && self::verifyCsrfToken($token, $subject)) {
+            return;
+        }
+        if ($dieOnFail) {
+            CsrfUtils::csrfNotVerified();
+        }
+        throw new \RuntimeException('CSRF token validation failed');
     }
 }
