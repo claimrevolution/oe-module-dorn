@@ -32,8 +32,8 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Get Lab Results", xl("Get Lab Results"));
 }
 
-$resultsGuid = $_REQUEST['resultGuid'];
-$rejectResults = $_REQUEST['rejectResults'];
+$resultsGuid = $_REQUEST['resultGuid'] ?? '';
+$rejectResults = $_REQUEST['rejectResults'] ?? '';
 if (empty($rejectResults)) {
     $rejectResults = false;
 }
@@ -61,7 +61,7 @@ if ($resultsGuid) {
 
         foreach ($response as $resultModel) {
             echo '<div class="alert ' . ($resultModel->isSuccess ? 'alert-success' : 'alert-danger') . '" role="alert">';
-            echo '<strong>' . ($resultModel->isSuccess ? xlt('Success') : xlt('Error')) . ':</strong> ' . text("$resultModel->message");
+            echo '<strong>' . ($resultModel->isSuccess ? xlt('Success') : xlt('Error')) . ':</strong> ' . text($resultModel->message ?? '');
             echo '</div>';
         }
     } else {

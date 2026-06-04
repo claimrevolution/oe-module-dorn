@@ -30,15 +30,26 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Acknowledge Lab Results", xl("Acknowledge Lab Results"));
 }
 
-$resultsGuid = $_REQUEST['resultGuid'];
-$rejectResults = $_REQUEST['rejectResults'];
+$resultsGuid = $_REQUEST['resultGuid'] ?? '';
+$rejectResults = $_REQUEST['rejectResults'] ?? '';
 if (empty($rejectResults)) {
     $rejectResults = false;
 }
 
 $rejectResults = $rejectResults == "true" ? true : false;
+$ackError = '';
 if ($resultsGuid) {
-    ConnectorApi::sendAck($resultsGuid, $rejectResults, null);
+    $ackResponse = ConnectorApi::sendAck($resultsGuid, $rejectResults, null);
+    // getData/postData returns "" on a transport/HTTP failure; flag an error on a
+    // non-object return or an explicit isSuccess === false so we don't tell the
+    // user the lab was notified when it wasn't.
+    $ackFailed = ($ackResponse === "" || $ackResponse === false || $ackResponse === null)
+        || (is_object($ackResponse) && property_exists($ackResponse, 'isSuccess') && !$ackResponse->isSuccess);
+    if ($ackFailed) {
+        $ackError = (is_object($ackResponse) && !empty($ackResponse->responseMessage))
+            ? $ackResponse->responseMessage
+            : xl('Could not reach the lab service — the acknowledgement may not have been sent.');
+    }
 }
 
 ?>
@@ -50,9 +61,13 @@ if ($resultsGuid) {
     </head>
     <body>
     <?php
-    if ($rejectResults == true) {
+    if ($ackError !== '') {
         ?>
-    <h3><?php echo xlt("Results Rejected"); ?></h3>
+        <div class="alert alert-danger" role="alert"><?php echo text($ackError); ?></div>
+        <?php
+    } elseif ($rejectResults == true) {
+        ?>
+        <h3><?php echo xlt("Results Rejected"); ?></h3>
         <?php
     } else {
         ?>

@@ -33,49 +33,56 @@ $labGuid = "";
 $message = "";
 
 if (!empty($_REQUEST)) {
-    if (!CsrfHelper::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    if (!CsrfHelper::verifyCsrfToken($_REQUEST["csrf_token_form"] ?? '')) {
         CsrfUtils::csrfNotVerified();
     }
 }
 if (!empty($_POST)) {
     //lets lookup the lab information we want to add a route for!
     $routeData = CreateRouteFromPrimaryViewModel::loadByPost($_POST);
-    $apiResponse =  ConnectorApi::createRoute($routeData); //create the route on dorn, we have all we need to do so
-    if ($apiResponse->isSuccess) {
-        $ppid = 0;
-        $uid = 0;
+    $apiResponse = ConnectorApi::createRoute($routeData); //create the route on dorn, we have all we need to do so
+    if (is_object($apiResponse) && !empty($apiResponse->isSuccess)) {
         $labData = ConnectorApi::getLab($routeData->labGuid);
-        $note = "labGuid:" . $labData->labGuid;
-
-        $setupRouteInfo = LabRouteSetup::getRouteSetup($apiResponse->labGuid, $apiResponse->routeGuid);
-        if ($setupRouteInfo != null) {
-            $ppid = $setupRouteInfo["ppid"];
-            $uid = $setupRouteInfo["uid"];
-        }
-
-        //we've added this lab to the address book here.
-        $uid = AddressBookAddEdit::createOrUpdateRecordInAddressBook($uid, $labData->name, $labData->address1, $labData->address2, $labData->city, $labData->state, $labData->zipCode, $labData->Website, $labData->phoneNumber, $labData->faxNumber, $note);
-        $ppid = LabRouteSetup::createUpdateProcedureProviders($ppid, $labData->name, $routeData->npi, $labData->labGuid, $uid, $routeData->labAccountNumber);
-
-        //lets add/update to the new dorn route table
-        $isLabSetup = LabRouteSetup::createDornRoute($apiResponse->labName, $apiResponse->routeGuid, $apiResponse->labGuid, $ppid, $uid, $labData->textLineBreakCharacter, $routeData->labAccountNumber);
-        $message = $isLabSetup ? "Lab has been setup" : "Failure creating route!";
-    } else {
-        if ($apiResponse->responseMessage) {
-            $message = $apiResponse->responseMessage;
+        if (!is_object($labData)) {
+            // The route was created on DORN but we couldn't load the lab details to
+            // finish local setup. Don't half-build the address book / provider rows.
+            $message = xl("The route was created but the lab details could not be loaded, so local setup is incomplete. Please try again.");
         } else {
-            $message = "Error creating route, no information came back though";
+            $ppid = 0;
+            $uid = 0;
+            $note = "labGuid:" . $labData->labGuid;
+
+            $setupRouteInfo = LabRouteSetup::getRouteSetup($apiResponse->labGuid, $apiResponse->routeGuid);
+            if ($setupRouteInfo != null) {
+                $ppid = $setupRouteInfo["ppid"];
+                $uid = $setupRouteInfo["uid"];
+            }
+
+            //we've added this lab to the address book here.
+            $uid = AddressBookAddEdit::createOrUpdateRecordInAddressBook($uid, $labData->name, $labData->address1, $labData->address2, $labData->city, $labData->state, $labData->zipCode, $labData->Website, $labData->phoneNumber, $labData->faxNumber, $note);
+            $ppid = LabRouteSetup::createUpdateProcedureProviders($ppid, $labData->name, $routeData->npi, $labData->labGuid, $uid, $routeData->labAccountNumber);
+
+            //lets add/update to the new dorn route table
+            $isLabSetup = LabRouteSetup::createDornRoute($apiResponse->labName, $apiResponse->routeGuid, $apiResponse->labGuid, $ppid, $uid, $labData->textLineBreakCharacter, $routeData->labAccountNumber);
+            $message = $isLabSetup ? xl("Lab has been setup") : xl("Failure creating route!");
         }
+    } else {
+        $message = (is_object($apiResponse) && !empty($apiResponse->responseMessage))
+            ? $apiResponse->responseMessage
+            : xl("Error creating route — no information came back from the lab service.");
     }
 } else {
     if (!empty($_GET)) {
-        $labGuid = $_REQUEST['labGuid'];
+        $labGuid = $_REQUEST['labGuid'] ?? '';
     }
 }
 
 $isEula = ($_GET['isEula'] ?? false) == 'true';
 
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
+if (!is_iterable($primaryInfos)) {
+    $primaryInfos = [];
+}
 ?>
 <!DOCTYPE html>
 <html>

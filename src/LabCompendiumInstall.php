@@ -30,7 +30,7 @@ class LabCompendiumInstall
     public static function install($labGuid)
     {
         $compendiumResponse = ConnectorApi::getCompendium($labGuid);
-        if ($compendiumResponse->isSuccess && $compendiumResponse->compendium) {
+        if (is_object($compendiumResponse) && !empty($compendiumResponse->isSuccess) && !empty($compendiumResponse->compendium)) {
             $result = LabRouteSetup::getProcedureIdProviderByLabGuid($labGuid);
             while ($record = sqlFetchArray($result)) {
                 $lab_id = $record["ppid"];
@@ -41,9 +41,12 @@ class LabCompendiumInstall
                 }
             }
             ConnectorApi::setCompendiumLastUpdate($labGuid);
-            self::echoLi("Compendium has been updated for lab: " . ($compendiumResponse->compendium->labName));
+            self::echoLi(xl('Compendium has been updated for lab') . ': ' . ($compendiumResponse->compendium->labName ?? ''));
         } else {
-            self::echoLi("Error Getting Compendium! " . ($compendiumResponse->responseMessage));
+            $errMsg = (is_object($compendiumResponse) && !empty($compendiumResponse->responseMessage))
+                ? $compendiumResponse->responseMessage
+                : xl('Unknown error retrieving the compendium from the lab service.');
+            self::echoLi(xl('Error getting compendium') . ': ' . $errMsg);
         }
     }
 

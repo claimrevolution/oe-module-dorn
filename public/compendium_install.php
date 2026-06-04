@@ -14,12 +14,18 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\Dorn\CsrfHelper;
 use OpenEMR\Modules\Dorn\LabCompendiumInstall;
 
+if (!AclMain::aclCheckCore('admin', 'users')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Compendium Install", xl("Compendium Install"));
+}
+
 if (!empty($_GET)) {
     CsrfHelper::checkCsrfInput(INPUT_GET, dieOnFail: true);
-    $labGuid = $_REQUEST['labGuid'];
+    $labGuid = $_REQUEST['labGuid'] ?? '';
     echo "<div style='background-color: white; color: black; padding: 5px;'>" .
         "<div>" . xlt('Compendium Install') . "</div><ul>";
     ob_flush();

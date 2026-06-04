@@ -33,17 +33,19 @@ class CustomerPrimaryInfoView
     public static function loadByPost($postData)
     {
         $model = new CustomerPrimaryInfoView();
-        $model->primaryId = $postData["form_primaryId"];
-        $model->accountNumber = $postData["form_account_number"];
-        $model->npi = $postData["form_npi"];
-        $model->primaryName = $postData["form_name"];
-        $model->primaryPhone = $postData["form_phone"];
-        $model->primaryEmail = $postData["form_email"];
-        $model->primaryAddress1 = $postData["form_address1"];
-        $model->primaryAddress2 = $postData["form_address2"];
-        $model->primaryCity = $postData["form_city"];
-        $model->primaryState = $postData["form_state"];
-        $model->primaryZipCode = $postData["form_zip"];
+        // Account number is resolved server-side from the auth token; the form has
+        // no such field. Guard every read so a missing field can't warn/fatal.
+        $model->primaryId = $postData["form_primaryId"] ?? "";
+        $model->accountNumber = $postData["form_account_number"] ?? "";
+        $model->npi = $postData["form_npi"] ?? "";
+        $model->primaryName = $postData["form_name"] ?? "";
+        $model->primaryPhone = $postData["form_phone"] ?? "";
+        $model->primaryEmail = $postData["form_email"] ?? "";
+        $model->primaryAddress1 = $postData["form_address1"] ?? "";
+        $model->primaryAddress2 = $postData["form_address2"] ?? "";
+        $model->primaryCity = $postData["form_city"] ?? "";
+        $model->primaryState = $postData["form_state"] ?? "";
+        $model->primaryZipCode = $postData["form_zip"] ?? "";
         if ($model->primaryId == "") {
             $model->primaryId = null;
         }

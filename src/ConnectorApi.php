@@ -285,16 +285,17 @@ class ConnectorApi
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr = ($result === false) ? curl_error($ch) : '';
         curl_close($ch);
         if ($result === false) {
-            error_log('cURL error: ' . curl_error($ch));
+            error_log('DORN API cURL error (GET ' . strtok($url, '?') . '): ' . $curlErr);
+            return "";
         }
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($httpcode == 200 || $httpcode == 400) {
-            $responseJsonData = json_decode($result);
-            return $responseJsonData;
+            return json_decode($result);
         }
-        error_log("Error " . "Status Code" . text($httpcode) . " sending in api " . text($url) . " Message " . text($result));
+        error_log('DORN API error: HTTP ' . $httpcode . ' from GET ' . strtok($url, '?'));
         return "";
     }
 
@@ -302,27 +303,24 @@ class ConnectorApi
     {
         $headers = ConnectorApi::buildHeader();
         $payload = json_encode($sendData, JSON_UNESCAPED_SLASHES);
-        error_log("putting");
-        error_log(text($payload));
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-// Use PUT method
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT'); // Use PUT method
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
-        curl_close($ch);
-        if ($result === false) {
-            error_log('cURL error: ' . curl_error($ch));
-        }
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpcode == 200 || $httpcode == 400) {
-            $responseJsonData = json_decode($result);
-            return $responseJsonData;
+        $curlErr = ($result === false) ? curl_error($ch) : '';
+        curl_close($ch);
+        if ($result !== false && ($httpcode == 200 || $httpcode == 400)) {
+            return json_decode($result);
         }
-
-        error_log("Error " . "Status Code" . text($httpcode) . " sending in api " . text($url) . " Message " . text($result));
+        if ($result === false) {
+            error_log('DORN API cURL error (PUT ' . strtok($url, '?') . '): ' . $curlErr);
+        } else {
+            error_log('DORN API error: HTTP ' . $httpcode . ' from PUT ' . strtok($url, '?'));
+        }
         $response = new ApiResponseViewModel();
         $response->isSuccess = false;
         $response->responseMessage = "Error Putting Data!";
@@ -331,7 +329,6 @@ class ConnectorApi
 
     public static function postData($url, $sendData)
     {
-        $error = "";
         $headers = ConnectorApi::buildHeader();
         $payload = json_encode($sendData, JSON_UNESCAPED_SLASHES);
         $ch = curl_init();
@@ -341,20 +338,20 @@ class ConnectorApi
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
-        curl_close($ch);
-        if ($result === false) {
-            $error = curl_error($ch);
-            error_log('cURL error: ' . curl_error($ch));
-        }
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpcode == 200 || $httpcode == 400) {
-            $responseJsonData = json_decode($result);
-            return $responseJsonData;
+        $curlErr = ($result === false) ? curl_error($ch) : '';
+        curl_close($ch);
+        if ($result !== false && ($httpcode == 200 || $httpcode == 400)) {
+            return json_decode($result);
         }
-        error_log("Error " . "Status Code" . text($httpcode) . " sending in api " . text($url) . " Message " . text($result));
+        if ($result === false) {
+            error_log('DORN API cURL error (POST ' . strtok($url, '?') . '): ' . $curlErr);
+        } else {
+            error_log('DORN API error: HTTP ' . $httpcode . ' from POST ' . strtok($url, '?'));
+        }
         $response = new ApiResponseViewModel();
         $response->isSuccess = false;
-        $response->responseMessage = "Error Posting Data! " . $error;
+        $response->responseMessage = "Error Posting Data!";
         return $response;
     }
 
@@ -405,13 +402,15 @@ class ConnectorApi
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $result = curl_exec($ch);
+        $curlErr = ($result === false) ? curl_error($ch) : '';
         curl_close($ch);
         if ($result === false) {
-            error_log('cURL error: ' . curl_error($ch));
+            error_log('DORN auth cURL error: ' . $curlErr);
+            return "";
         }
         $data = json_decode($result);
         $token = "";
-        if (property_exists($data, 'access_token')) {
+        if (is_object($data) && property_exists($data, 'access_token')) {
             $token = $data->access_token;
         }
 

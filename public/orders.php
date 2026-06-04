@@ -38,6 +38,9 @@ if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: DORN Orders", $pageTitle);
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
+if (!is_iterable($primaryInfos)) {
+    $primaryInfos = [];
+}
 if (!empty($_POST)) {
     if (isset($_POST['SubmitButton'])) {
         //check if form was submitted
@@ -84,7 +87,7 @@ if (!empty($_POST)) {
                                     <div class="col-md-4">
                                         <select name="form_primaryId">
                                             <?php foreach ($primaryInfos as $primaryInfo) {
-                                                $selected = $primaryInfo->primaryId === $_POST['form_primaryId'] ? "selected" : "";
+                                                $selected = ($primaryInfo->primaryId ?? null) == ($_POST['form_primaryId'] ?? null) ? "selected" : "";
                                                 ?>
                                                 <option value='<?php echo attr($primaryInfo->primaryId); ?>' <?php echo $selected; ?>>
                                                     <?php echo text($primaryInfo->primaryName); ?>

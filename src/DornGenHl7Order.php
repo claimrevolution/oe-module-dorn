@@ -764,7 +764,15 @@ class DornGenHl7Order extends GenHl7OrderBase
             exit;
         } else {
             $response = ConnectorApi::sendOrder($labGuid, $labAccountNumber, $orderId, $pid, $out);
-            $responseMessage = !$response->isSuccess ? $response->responseMessage : $response;
+            if (is_object($response) && !empty($response->isSuccess)) {
+                // Preserve prior behavior: the success response object carries the
+                // order details the caller records.
+                $responseMessage = $response;
+            } else {
+                $responseMessage = (is_object($response) && !empty($response->responseMessage))
+                    ? $response->responseMessage
+                    : xl("Order send failed — no response from the lab service.");
+            }
         }
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
