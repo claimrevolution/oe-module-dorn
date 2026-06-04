@@ -232,6 +232,51 @@ class ConnectorApi
         return $returnData;
     }
 
+    /**
+     * Authenticated call to fetch this customer's DORN account number,
+     * resolved server-side from the OAuth token. Used by the Connectivity page.
+     *
+     * @return string The account number, or "" when unavailable.
+     */
+    public static function getAccountNumber(): string
+    {
+        $api_server = ConnectorApi::getServerInfo();
+        $url = $api_server . "/api/Customer/v1/GetAccountNumber";
+        $data = ConnectorApi::getData($url);
+        return is_string($data) ? $data : "";
+    }
+
+    /**
+     * Anonymous call (no auth token) to fetch ClaimRev support/contact info.
+     * DORN's own lab-api has no SupportInfo endpoint, so this reuses ClaimRev's
+     * public endpoint. Returns an associative array (e.g. phone, supportEmail,
+     * salesEmail) or false on any failure so callers can fall back to defaults.
+     *
+     * @return array<string, mixed>|false
+     */
+    public static function getSupportInfo()
+    {
+        $url = "https://api.claimrev.com/api/SupportInfo/v1/GetSupportInfo";
+        $headers = [
+            'accept: application/json',
+            'content-type: application/json',
+        ];
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        $result = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($result === false || $httpcode !== 200) {
+            return false;
+        }
+        $data = json_decode($result, true);
+        return is_array($data) ? $data : false;
+    }
+
     public static function getData($url)
     {
         $headers = ConnectorApi::buildHeader();

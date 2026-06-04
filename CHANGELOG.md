@@ -1,3 +1,15 @@
+# 1.0.1
+Adds operator-facing connectivity and contact features (mirrors ClaimRev Connect):
+- Home page now pulls Support/Sales contact info from the ClaimRev public
+  SupportInfo API (`ConnectorApi::getSupportInfo`), falling back to the previous
+  static values if the call fails.
+- New **Connectivity** tab (`public/connectivity.php` + `src/ConnectivityInfo.php`)
+  showing the configured authority, client ID, scope, API server, token status,
+  the account number (resolved from the new lab-api `Customer/v1/GetAccountNumber`
+  endpoint), and the installed module version.
+- No remote version/update check is performed; only the locally installed version
+  is shown.
+
 # 1.0.0
 First standalone Composer release of the DORN lab-integration module, extracted
 from the bundled openemr/openemr copy. Single binary runs on OpenEMR 7.x, 8.0.x,
