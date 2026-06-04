@@ -90,7 +90,13 @@ class Bootstrap
             $this->registerMenuItems();
             $this->registerTemplateEvents();
             $this->subscribeToApiEvents();
-            $this->eventDispatcher->addSubscriber(new DornLabSubscriber());
+            // DornLabSubscriber binds to the core OpenEMR\Events\Services\DornLabEvent,
+            // which only exists on the 8.x line. On 7.x that core event is absent (and
+            // never fires), so registering the subscriber would fatal in
+            // getSubscribedEvents(). Guard on the event class being present.
+            if (class_exists(\OpenEMR\Events\Services\DornLabEvent::class)) {
+                $this->eventDispatcher->addSubscriber(new DornLabSubscriber());
+            }
         }
     }
 
