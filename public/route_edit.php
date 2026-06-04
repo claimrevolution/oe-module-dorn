@@ -117,18 +117,9 @@ if (!is_iterable($primaryInfos)) {
             </div>
         </div>
 
-        <!-- Customer Account Information Section -->
+        <!-- Client Site Information Section -->
         <div class="form-section">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="form_customerAcctNumber"><?php echo xlt("Customer Account Number") ?> <span class="required-field">*</span>:</label>
-                        <input type="text" class="form-control" id="form_customerAccountNumber" name="form_customerAcctNumber"
-                            value="<?php echo isset($_POST['form_customerAcctNumber']) ? attr($_POST['form_customerAcctNumber']) : '' ?>"
-                            required/>
-                        <small class="form-text text-muted"><?php echo xlt("Your unique customer account identifier") ?></small>
-                    </div>
-                </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="form_clientSiteId"><?php echo xlt("Client Site ID") ?> <span class="required-field">*</span>:</label>

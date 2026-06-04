@@ -14,7 +14,6 @@
 
 class CreateRouteFromPrimaryViewModel
 {
-    public $customerAccountNumber;
     public $npi = "";
     public $labGuid;
     public $labAccountNumber;
@@ -31,7 +30,6 @@ class CreateRouteFromPrimaryViewModel
     public static function loadByPost($postData)
     {
         $model = new CreateRouteFromPrimaryViewModel();
-        $model->customerAccountNumber = $postData["form_customerAcctNumber"] ?? "";
         $model->npi = $postData["form_primaries"] ?? "";
         $model->labGuid = $postData["form_labGuid"] ?? "";
         $model->labAccountNumber = $postData["form_labAcctNumber"] ?? "";
