@@ -43,6 +43,9 @@ if (!empty($_POST)) {
         if ($saveOk) {
             echo "<span class='alert alert-success mx-3'>" . xlt("Primary information saved successfully") . "</span>";
         } else {
+            // Keep the user's submitted values so they can fix the flagged field
+            // and resubmit, instead of losing everything they typed.
+            $data = $saveData;
             $errMsg = (is_object($response) && !empty($response->responseMessage))
                 ? $response->responseMessage
                 : xlt("an unknown error occurred");
@@ -53,7 +56,9 @@ if (!empty($_POST)) {
     $npi = $_REQUEST['npi'] ?? "";
 }
 
-if ($npi) {
+// On a failed save $data already holds the submitted values (so the form keeps
+// what the user typed); otherwise load the saved record for this NPI.
+if ($npi && $data === null) {
     $data = ConnectorApi::getPrimaryInfoByNpi($npi);
 }
 
