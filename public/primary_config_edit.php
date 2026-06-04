@@ -39,10 +39,14 @@ if (!empty($_POST)) {
         $saveData = CustomerPrimaryInfoView::loadByPost($_POST);
         $response = ConnectorApi::savePrimaryInfo($saveData);
         $npi = $_POST["form_npi"];
-        if ($response !== true) {
-            echo "<span class='alert alert-danger mx-3'>" . xlt("Error saving primary information: ") . text($response->message) . "</span>";
-        } else {
+        $saveOk = is_object($response) && !empty($response->isSuccess);
+        if ($saveOk) {
             echo "<span class='alert alert-success mx-3'>" . xlt("Primary information saved successfully") . "</span>";
+        } else {
+            $errMsg = (is_object($response) && !empty($response->responseMessage))
+                ? $response->responseMessage
+                : xlt("an unknown error occurred");
+            echo "<span class='alert alert-danger mx-3'>" . xlt("Error saving primary information:") . " " . text($errMsg) . "</span>";
         }
     }
 } else {
