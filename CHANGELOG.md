@@ -5,6 +5,19 @@
   `text/plain` (`HLTH1`), which `json_decode()` was turning into `null`. Other
   endpoints already returned JSON and are unaffected.
 - Move the **Connectivity** tab to the end of the navbar (after Route List).
+- Fix blank **Orders / Results / Route List** pages on the 8.0.x patch line and
+  7.0.4: the datetimepicker include used the flex-only
+  `OEGlobalsBag::getSrcDir()`; replaced with `get('srcdir')`, present on every
+  line.
+- Fix a fatal **"undefined method `CsrfUtils::checkCsrfInput()`"** on every admin
+  POST endpoint (compendium install, ack/get lab results) on 7.0.4 and 8.0.x —
+  that method is master/flex-only. `CsrfHelper` now reimplements it from
+  `filter_input` + `verifyCsrfToken` + `csrfNotVerified` when absent.
+- Quality-of-life hardening across the module: admin ACL on the compendium
+  install endpoint, response-handling guards, API-client robustness, and PHI
+  scrubbed from request logging.
+- Preserve submitted values and surface the API error message on a failed
+  primary-info save.
 
 # 1.0.1
 Adds operator-facing connectivity and contact features (mirrors ClaimRev Connect):
